@@ -1,29 +1,12 @@
 import asyncio
 from typing import List
 
-import aiohttp
 from pandas import DataFrame, concat, read_html
 
 from params import MONTHS
-
-
-async def fetch(session, url: str):
-    """Function to retrieve data async"""
-    async with session.get(url, ssl=False) as response:
-        data = await response.read()
-        return data
-
-
-async def fetch_api_data(urls: list) -> tuple:
-    """ """
-    print("Fetching api data...")
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in urls:
-            tasks.append(fetch(session, url))
-        responses = await asyncio.gather(*tasks, return_exceptions=False)
-    return responses
-
+from utils.uDatalake import BlobConnection
+from utils.uAsync import fetch_api_data
+from utils.uDatetime import NOW
 
 def fetch_played_games(months: List[str]) -> DataFrame:
     """Function to retrieve all played NBA games this season"""
@@ -38,9 +21,12 @@ def fetch_played_games(months: List[str]) -> DataFrame:
     # games["AbbrVisitorTeam"] = games["Visitor/Neutral"].map(find_abbreviation)
     # games["DateStr"] = games["Date"].map(convert_date)
     # games["url"] = games.apply(gen_url, axis=1)
-    print(games)
     return games
 
+def load_played_games_to_blob(data: DataFrame) -> None:
+    blob_conn = BlobConnection()
+    blob_conn.write_dataframe_to_csv(data=data,container="gamesplayed", blob_name=f"gamesplayed{NOW}")
 
 if __name__=="__main__":
-    fetch_played_games(MONTHS)
+    games = fetch_played_games(MONTHS)
+    load_played_games_to_blob(games)
