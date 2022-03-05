@@ -24,9 +24,11 @@ def fetch_played_games(months: List[str]) -> DataFrame:
     return games
 
 def load_played_games_to_blob(data: DataFrame) -> None:
+    
     blob_conn = BlobConnection()
     blob_conn.write_dataframe_to_csv(data=data,container="gamesplayed", blob_name=f"gamesplayed{NOW}")
 
 if __name__=="__main__":
     games = fetch_played_games(MONTHS)
     load_played_games_to_blob(games)
+    
