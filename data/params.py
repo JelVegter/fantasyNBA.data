@@ -1,5 +1,3 @@
-
-
 MONTHS = [
     "october",
     "november",
@@ -43,4 +41,3 @@ basketball_reference_abbreviations = {
     "Utah Jazz": "UTA",
     "Washington Wizards": "WAS",
 }
-

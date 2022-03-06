@@ -1,12 +1,13 @@
 import asyncio
 from typing import List
 
+import requests
 from pandas import DataFrame, concat, read_html
+from data.params import MONTHS, basketball_reference_abbreviations
 
-from params import MONTHS, basketball_reference_abbreviations
-from utils.uDatalake import BlobConnection
 from utils.uAsync import fetch_api_data
-from utils.uDatetime import NOW, convert_date
+from utils.uDatalake import BlobConnection
+from utils.uDatetime import NOW, TODAY, convert_date
 
 
 def find_abbreviation(team: str) -> str:
@@ -33,6 +34,7 @@ def fetch_played_games(months: List[str]) -> DataFrame:
     games["AbbrHomeTeam"] = games["Home/Neutral"].map(find_abbreviation)
     games["AbbrVisitorTeam"] = games["Visitor/Neutral"].map(find_abbreviation)
     games["DateStr"] = games["Date"].map(convert_date)
+    games["Date"] = games["Date"].apply(lambda x: convert_date(x, hyphens=True))
     games["url"] = games.apply(gen_url, axis=1)
     print("Played games fetched...")
     return games
@@ -41,11 +43,12 @@ def fetch_played_games(months: List[str]) -> DataFrame:
 def load_played_games_to_blob(data: DataFrame) -> None:
     """Function to load player games to Azure blob storage"""
     blob_conn = BlobConnection()
-    blob_conn.write_dataframe_to_csv(data=data,container="gamesplayed", blob_name=f"gamesplayed{NOW}")
-    return "Played games loaded to blob..."
+    blob_conn.write_dataframe_to_csv(
+        data=data, container="gamesplayed", blob_name=f"gamesplayed/{NOW}.csv"
+    )
+    print("Played games loaded to blob...")
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     games = fetch_played_games(MONTHS)
     load_played_games_to_blob(games)
-    
