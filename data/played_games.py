@@ -44,7 +44,7 @@ def load_played_games_to_blob(data: DataFrame) -> None:
     """Function to load player games to Azure blob storage"""
     blob_conn = BlobConnection()
     blob_conn.write_dataframe_to_csv(
-        data=data, container="gamesplayed", blob_name=f"gamesplayed/{NOW}.csv"
+        data=data, header=False, container="gamesplayed", blob_name=f"gamesplayed/{NOW}.csv"
     )
     print("Played games loaded to blob...")
 
