@@ -123,7 +123,7 @@ def load_player_stats_to_blob(data: DataFrame) -> None:
     """Function to load player stats to Azure blob storage"""
     blob_conn = BlobConnection()
     blob_conn.write_dataframe_to_csv(
-        data=data, container="playerstats", blob_name=f"playerstats/{NOW}.csv"
+        data=data, header=False, container="playerstats", blob_name=f"playerstats/{NOW}.csv"
     )
     print("Player stats loaded to blob...")
 
