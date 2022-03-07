@@ -7,7 +7,7 @@ from data.params import MONTHS
 from data.played_games import fetch_played_games
 from utils.uAsync import fetch_api_data
 from utils.uDatalake import BlobConnection
-from utils.uDatetime import NOW, TODAY, THREE_DAYS_AGO
+from utils.uDatetime import NOW, TODAY, ONE_DAYS_AGO
 
 
 def parse_html_tables(html: str, date, home_team_ab: str, away_team_ab: str) -> DataFrame:
@@ -34,7 +34,7 @@ def fetch_player_stats(played_games: DataFrame, incremental: bool = False) -> Da
     """Function to fetch all player stats for games played"""
 
     if incremental:
-        played_games = played_games.loc[played_games["DateStr"] > THREE_DAYS_AGO]
+        played_games = played_games.loc[played_games["DateStr"] == ONE_DAYS_AGO]
 
     urls = played_games["url"].to_list()
     dates = played_games["Date"].to_list()
@@ -130,7 +130,7 @@ def load_player_stats_to_blob(data: DataFrame) -> None:
 
 if __name__ == "__main__":
     played_games = fetch_played_games(MONTHS)
-    player_stats = fetch_player_stats(played_games, incremental=False)
+    player_stats = fetch_player_stats(played_games, incremental=True)
     prepped_player_stats = clean_stats_table(player_stats)
     load_player_stats_to_blob(prepped_player_stats)
 
